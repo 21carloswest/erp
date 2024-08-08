@@ -23,7 +23,8 @@ class StoreCertificadoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', new ValidCertificate($this->input('password'))]
+            'password' => ['bail', 'required', 'string'],
+            'file' => ['bail', 'required', 'file', new ValidCertificate($this->input('password'))],
         ];
     }
 }

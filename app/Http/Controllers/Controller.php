@@ -23,7 +23,7 @@ abstract class Controller
         return response()->json($response, $code);
     }
 
-    function sendError($error, $errorMessages = [], $code = 404)
+    function sendError($error, $code = 404, $errorMessages = [] )
     {
         $response = [
             'message' => $error,
@@ -34,11 +34,6 @@ abstract class Controller
         }
 
         return response()->json($response, $code);
-    }
-
-    function empresaId() 
-    {
-        return Auth::user()->empresaId ?? Auth::user()->id;
     }
 
 }

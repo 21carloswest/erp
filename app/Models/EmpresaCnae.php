@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class EmpresaCnae extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'empresaId',
+        'cnaeId',
+    ];
+
+    public $timestamps = false;
 }

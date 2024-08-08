@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Traits\EmpresaIdTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+
+    use EmpresaIdTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -38,19 +42,11 @@ class UserController extends Controller
      */
     public function show(Request $request, User $user)
     {
-        $user = User::where('id', $request->id)
+        $user = $user->where('id', $request->id)
             ->where('empresaId', $this->empresaId())
             ->get();
 
-        return $user;
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
+        return $this->sendResponse($user, 201);
     }
 
     /**

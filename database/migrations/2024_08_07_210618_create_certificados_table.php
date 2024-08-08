@@ -15,9 +15,9 @@ return new class extends Migration
         Schema::create('certificados', function (Blueprint $table) {
             $table->id();
             $table->string('path');
-            $table->date('dataValidade');
+            $table->timestamp('dataValidade');
             $table->string('password');
-            $table->foreignIdFor(Empresa::class, 'empresaId');
+            $table->foreignIdFor(Empresa::class, 'empresaId')->unique();
             $table->timestamps();
         });
     }

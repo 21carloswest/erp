@@ -4,15 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEmpresaRequest;
 use App\Http\Requests\UpdateEmpresaRequest;
+use App\Models\Configuracao;
 use App\Models\Contato;
 use App\Models\Empresa;
 use App\Models\EmpresaCnae;
 use App\Models\Endereco;
+use App\Traits\EmpresaIdTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EmpresaController extends Controller
 {
+
+    use EmpresaIdTrait;
+
 
     public function store(StoreEmpresaRequest $request)
     {
@@ -33,6 +38,10 @@ class EmpresaController extends Controller
             ]);
 
             Endereco::create([
+                'empresaId' => $empresa->id,
+            ]);
+
+            Configuracao::create([
                 'empresaId' => $empresa->id,
             ]);
 
@@ -95,27 +104,38 @@ class EmpresaController extends Controller
     {
         // $cnaes = EmpresaCnae::where('id', $request->contatoId)->findOrFail($this->empresaId());
 
-        DB::transaction(function () use ($request) {
+        $dados = DB::transaction(function () use ($request) {
 
-            $empresa = Empresa::findOrFail($this->empresaId());
+            $empresaId = $this->empresaId();
+
+            $empresa = Empresa::findOrFail($empresaId);
 
             $empresa->fill($request->all());
 
             $empresa->save();
 
-            $endereco = Endereco::where('id', $request->enderecoId)->findOrFail($this->empresaId());
+            $endereco = Endereco::where('empresaId', $empresaId)->findOrFail($request->enderecoId);
 
             $endereco->fill($request->all());
 
             $endereco->save();
 
-            $contato = Contato::where('id', $request->contatoId)->findOrFail($this->empresaId());
+            $contato = Contato::where('empresaId', $empresaId)->findOrFail($request->contatoId);
 
             $contato->fill($request->all());
 
             $contato->save();
 
+            foreach ($request->cnae as $value) {
+                $empresaCnae[] = EmpresaCnae::firstOrCreate(
+                    ['cnaeId' => $value, 'empresaId' => $empresaId]
+                );
+            }
+
+            return ['empresa' => $empresa, 'endereco' => $endereco, 'contato' => $contato, 'empresaCnae' => $empresaCnae];
         });
+
+        return $this->sendResponse($dados, 200);
     }
 
     /**
