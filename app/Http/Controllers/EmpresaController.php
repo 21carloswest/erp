@@ -18,7 +18,6 @@ class EmpresaController extends Controller
 
     use EmpresaIdTrait;
 
-
     public function store(StoreEmpresaRequest $request)
     {
         $empresa = DB::transaction(function () use ($request) {

@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('empresas', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('cnpj')->unsigned()->unique();
+            $table->string('cnpj', 14)->unique();
             $table->string('email')->unique();
             $table->string('razaoSocial');
             $table->string('nomeFantasia')->nullable();
-            $table->integer('inscricaoEstadual')->nullable();
-            $table->integer('inscricaoMunicipal')->nullable();
+            $table->string('inscricaoEstadual', 14)->nullable();
+            $table->string('inscricaoMunicipal', 14)->nullable();
             $table->boolean('ativa');
             $table->string('password');
             $table->integer('regimeTributario')->nullable();

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Empresa::class, 'empresaId');
             $table->foreignIdFor(Municipio::class, 'municipioId')->nullable();
-            $table->integer('cep')->unsigned()->nullable();
+            $table->string('cep')->nullable();
             $table->string('bairro', 255)->nullable();
             $table->string('endereco', 255)->nullable();
             $table->string('numero', 10)->nullable();

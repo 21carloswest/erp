@@ -23,7 +23,7 @@ class StoreEmpresaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cnpj' => ['required', 'integer', 'max_digits:14', 'regex:^(?:\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}|\d{14})$^'],
+            'cnpj' => ['required', 'numeric', 'max_digits:14', 'regex:^(?:\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}|\d{14})$^'],
             'razaoSocial' => 'required|string|max:255',
             'nomeFantasia' => 'sometimes|required|string|max:255',
             'email' => 'required|string|email|unique:empresas',
