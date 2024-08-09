@@ -3,11 +3,15 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\ConfiguracaoController;
+use App\Http\Controllers\DestinatarioController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\GrupoImpostosController;
+use App\Http\Controllers\ImpostosController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () { 
+    
     Route::post('/user/store', [UserController::class, 'store'])->name('UserStore');
     Route::get('/user/{id}', [UserController::class, 'show'])->name('UserShow');
 
@@ -20,6 +24,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/configuracao', [ConfiguracaoController::class, 'show'])->name('ConfiguracaoShow');
     Route::patch('/configuracao', [ConfiguracaoController::class, 'update'])->name('ConfiguracaoUpdate');
+
+    Route::get('/grupoImpostos', [GrupoImpostosController::class, 'index'])->name('GrupoImpostosIndex');
+    Route::get('/grupoImpostos/{id}', [GrupoImpostosController::class, 'show'])->name('GrupoImpostosShow');
+    Route::post('/grupoImpostos/store', [GrupoImpostosController::class, 'store'])->name('GrupoImpostosStore');
+    Route::patch('/grupoImpostos/update', [GrupoImpostosController::class, 'update'])->name('GrupoImpostosUpdate');
+    // Route::delete('/grupoImpostos/delete', [GrupoImpostosController::class, 'destroy'])->name('GrupoImpostosDelete');
+
+    Route::get('/impostos', [ImpostosController::class, 'index'])->name('ImpostosIndex');
+    Route::get('/impostos/{id}', [ImpostosController::class, 'show'])->name('ImpostosShow');
+    Route::patch('/impostos/update', [ImpostosController::class, 'update'])->name('Impostosupdate');
+
+    Route::get('/destinatario', [DestinatarioController::class, 'index'])->name('DestinatarioIndex');
+    Route::get('/destinatario/{id}', [DestinatarioController::class, 'show'])->name('DestinatarioShow');
+    Route::post('/destinatario/store', [DestinatarioController::class, 'store'])->name('DestinatarioStore');
+    Route::patch('/destinatario/update', [DestinatarioController::class, 'update'])->name('DestinatarioUpdate');
+    // Route::delete('/grupoImpostos/delete', [DestinatarioController::class, 'destroy'])->name('DestinatarioDelete');
 });
 
 Route::post('/empresa/store', [EmpresaController::class, 'store'])->name('EmpresaStore');
