@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\TipoItem;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_items', function (Blueprint $table) {
+        Schema::create('ncms', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('codigo');
+            $table->string('descricao');
+            $table->timestamps();
         });
-
-        TipoItem::insert([['id' => 1, 'name'=> 'Produto'], ['id' => 2, 'name'=> 'Serviço']]);
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_items');
+        Schema::dropIfExists('ncms');
     }
 };

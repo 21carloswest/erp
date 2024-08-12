@@ -7,6 +7,7 @@ use App\Http\Controllers\DestinatarioController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\GrupoImpostosController;
 use App\Http\Controllers\ImpostosController;
+use App\Http\Controllers\NfeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/destinatario/store', [DestinatarioController::class, 'store'])->name('DestinatarioStore');
     Route::patch('/destinatario/update', [DestinatarioController::class, 'update'])->name('DestinatarioUpdate');
     // Route::delete('/grupoImpostos/delete', [DestinatarioController::class, 'destroy'])->name('DestinatarioDelete');
+
+    Route::get('/nfe', [NfeController::class, 'index'])->name('NfeIndex');
+    Route::get('/nfe/{id}', [NfeController::class, 'show'])->name('NfeShow');
+    Route::post('/nfe/store', [NfeController::class, 'store'])->name('NfeStore');
+    Route::patch('/nfe/update', [NfeController::class, 'update'])->name('NfeUpdate');
+    Route::post('/nfe/enviar', [NfeController::class, 'enviar'])->name('NfeEnviar');
+    Route::delete('/nfe/delete', [NfeController::class, 'destroy'])->name('NfeDelete');
+
 });
 
 Route::post('/empresa/store', [EmpresaController::class, 'store'])->name('EmpresaStore');

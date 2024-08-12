@@ -27,4 +27,9 @@ class Empresa extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function endereco()
+    {
+        return $this->hasMany(Endereco::class, 'empresaId', 'id');
+    }
 }

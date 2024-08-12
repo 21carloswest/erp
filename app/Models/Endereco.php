@@ -17,4 +17,9 @@ class Endereco extends Model
         'endereco',
         'numero',
     ];
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'municipioId', 'id');
+    }
 }
