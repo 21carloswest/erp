@@ -17,4 +17,14 @@ class DestinatarioEndereco extends Model
         'endereco',
         'numero',
     ];
+
+    public function municipios()
+    {
+        return $this->belongsTo(Municipio::class, 'municipioId');
+    }
+
+    public function destinatario()
+    {
+        return $this->belongsTo(Destinatario::class, 'destinatarioId');
+    }
 }

@@ -12,11 +12,19 @@ use Illuminate\Support\Facades\DB;
 class DestinatarioController extends Controller
 {
     use EmpresaIdTrait;
+
     public function index()
     {
-        $destinatarios = Destinatario::select('id', 'cnpjCpf', 'nomeRazao', 'tipoId')
-            ->with('municipios:mun,uf')
-            ->where('empresaId', $this->empresaId())
+        $destinatarios = Destinatario::with([
+            'enderecos' => function ($query) {
+                $query->select('destinatarioId', 'municipioId');
+            },
+            'enderecos.municipios' => function ($query) {
+                $query->select('id', 'uf', 'mun');
+            }
+        ])
+            ->select('id', 'cnpjCpf', 'nomeRazao')
+            ->where('destinatarios.empresaId', $this->empresaId())
             ->paginate();
 
         if ($destinatarios->isEmpty()) {
@@ -33,24 +41,22 @@ class DestinatarioController extends Controller
             $empresaId = $this->empresaId();
 
             $destinatario = Destinatario::create([
-                'cnpjCpf' => $request->destinatario['cnpjCpf'],
-                'inscricaoEstadual' => $request->destinatario['inscricaoEstadual'],
-                'inscricaoMunicipal' => $request->destinatario['inscricaoMunicipal'],
-                'tipoIndicador' => $request->destinatario['tipoIndicador'],
-                'nomeRazao' => $request->destinatario['nomeRazao'],
+                'cnpjCpf' => $request->destinatarios['cnpjCpf'],
+                'inscricaoEstadual' => $request->destinatarios['inscricaoEstadual'],
+                'inscricaoMunicipal' => $request->destinatarios['inscricaoMunicipal'],
+                'tipoIndicador' => $request->destinatarios['tipoIndicador'],
+                'nomeRazao' => $request->destinatarios['nomeRazao'],
                 'empresaId' => $empresaId,
             ]);
 
             foreach ($request->enderecos as $key => $value) {
-                $enderecos[] = DestinatarioEndereco::create([
-
+                $enderecos[$key] = DestinatarioEndereco::create([
                     'destinatarioId' => $destinatario->id,
                     'municipioId' => $value['municipioId'],
                     'cep' => $value['cep'],
                     'bairro' => $value['bairro'],
                     'endereco' => $value['endereco'],
                     'numero' => $value['numero'],
-
                 ]);
             }
 
@@ -60,28 +66,82 @@ class DestinatarioController extends Controller
         return $this->sendResponse($dados, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Destinatario $destinatario)
+    public function show(Destinatario $destinatario, $id)
     {
-        //
+        $destinatario = Destinatario::with([
+            'enderecos' => function ($query) {
+                $query->select('destinatarioId', 'municipioId', 'cep', 'bairro', 'endereco', 'numero');
+            },
+            'enderecos.municipios' => function ($query) {
+                $query->select('id', 'uf', 'mun');
+            }
+        ])
+            ->select(
+                'id',
+                'cnpjCpf',
+                'nomeRazao',
+                'inscricaoEstadual',
+                'inscricaoMunicipal',
+                'tipoIndicador',
+            )
+            ->where('destinatarios.id', $id)
+            ->where('destinatarios.empresaId', $this->empresaId())
+            ->get();
+
+        if ($destinatario->isEmpty()) {
+            return $this->sendError('Nenhum destinatário encontrado.', 404);
+        }
+
+        return $this->sendResponse($destinatario, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Destinatario $destinatario)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateDestinatarioRequest $request, Destinatario $destinatario)
     {
-        //
+        $destinatario = DB::transaction(function () use ($request, $destinatario) {
+
+            $destinatario = $destinatario->where('id', $request->destinatarios['id'])
+                ->where('empresaId', $this->empresaId())
+                ->first();
+
+            if (!$destinatario) {
+                return;
+            }
+
+            $destinatario->fill($request->destinatarios);
+
+            $destinatario->save();
+
+            if ($request->enderecos) {
+
+                foreach ($request->enderecos as $key => $value) {
+                    $enderecos = DestinatarioEndereco::where('id', $value['id'])
+                        ->where('destinatarioId', $destinatario->id)
+                        ->first();
+
+                    if (!$enderecos) {
+                        return;
+                    }
+
+                    $enderecos->fill($value);
+
+                    $enderecos->save();
+
+                    $enderecosArray[] = $enderecos->toArray();
+                }
+            }
+
+            $retorno['destinatario'] = $destinatario->toArray();
+
+            $request->destinatarios ? $retorno['enderecos'] = $enderecosArray : null;
+
+            return $retorno;
+        });
+
+        if (!$destinatario) {
+            return $this->sendError('Nenhum destinatário encontrado.', 404);
+        }
+
+        return $this->sendResponse($destinatario, 200);
     }
 
     /**

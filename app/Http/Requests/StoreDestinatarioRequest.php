@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\EmpresaIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\Query\Builder;
 
 class StoreDestinatarioRequest extends FormRequest
 {
+    use EmpresaIdTrait;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,38 +26,24 @@ class StoreDestinatarioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'destinatario' => 'required|array',
-            // 'destinatario.cnpjCpf' => [
-            //     'required',
-            //     'numeric',
-            //     'max_digits:14',
-            //     'regex:^([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})^'
-            // ],
-            // 'destinatario.inscricaoEstadual' => 'required|integer|max_digits:15',
-            // 'destinatario.inscricaoMunicipal' => 'required|integer|max_digits:15',
-            // 'destinatario.tipoIndicador' => 'required|enum:|max_digits:15',
-            // 'destinatario.nomeRazao' => 'required|string|max:255',
-
-
-            // 'destinatario.nomeRazao' => 'required|string|max:100',
-            // 'impostos.estadual' => 'required|array',
-            // 'impostos.interestadual' => 'required|array',
-            // 'impostos.exterior' => 'required|array',
-            // 'impostos.*.indicadorDestinoId' => 'required|integer|exists:indicador_destinos,id',
-            // 'impostos.*.cfopId' => 'required|integer|exists:cfops,id',
-            // 'impostos.*.aliqIcms' => 'required|decimal:0,4',
-            // 'impostos.*.aliqIcmst' => 'required|decimal:0,4',
-            // 'impostos.*.aliqIcmsCredito' => 'required|decimal:0,4',
-            // 'impostos.*.aliqIpi' => 'required|decimal:0,4',
-            // 'impostos.*.aliqPis' => 'required|decimal:0,4',
-            // 'impostos.*.aliqCofins' => 'required|decimal:0,4',
-            // 'impostos.*.aliqIss' => 'required|decimal:0,4',
-            // 'impostos.*.cstIcms' => 'required|max_digits:3',
-            // 'impostos.*.cstIpi' => 'required|max_digits:3',
-            // 'impostos.*.cstPis' => 'required|max_digits:3',
-            // 'impostos.*.cstCofins' => 'required|max_digits:3',
-            // 'impostos.*.enquadramentoIpi' => 'required|max_digits:3',
-            // 'impostos.*.origem' => 'required|integer|max_digits:1',
+            'destinatarios' => 'required|array',
+            'destinatarios.cnpjCpf' => [
+                'required',
+                'numeric',
+                Rule::unique('destinatarios')->where(fn(Builder $query) => $query->where('empresaId', $this->empresaId())),
+                'max_digits:14',
+                'regex:^([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})^'
+            ],
+            'destinatarios.inscricaoEstadual' => 'required|integer|max_digits:15',
+            'destinatarios.inscricaoMunicipal' => 'required|integer|max_digits:15',
+            'destinatarios.tipoIndicador' => 'required|in:is,ic,nc',
+            'destinatarios.nomeRazao' => 'required|string|max:255',
+            'enderecos' => 'required|array',
+            'enderecos.*.municipioId' => 'required|integer|exists:municipios,id',
+            'enderecos.*.cep' => 'required|numeric|max_digits:8',
+            'enderecos.*.endereco' => 'required|string|max:255',
+            'enderecos.*.bairro' => 'required|string|max:255',
+            'enderecos.*.numero' => 'nullable|string|max:10',
         ];
     }
 }

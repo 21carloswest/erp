@@ -14,9 +14,11 @@ class Destinatario extends Model
         'inscricaoEstadual',
         'inscricaoMunicipal',
         'tipoIndicador',
-        'nomeRazao'
+        'nomeRazao',
+        'empresaId'
     ];
 
+    
     public function enderecos()
     {
         return $this->hasMany(DestinatarioEndereco::class, 'destinatarioId', 'id');
@@ -24,6 +26,6 @@ class Destinatario extends Model
 
     public function municipios()
     {
-        return $this->hasManyThrough(Municipio::class, DestinatarioEndereco::class, 'destinatarioId', 'municipioId');
+        return $this->hasManyThrough(Municipio::class, DestinatarioEndereco::class, 'destinatarioId', 'id', 'id', 'id');
     }
 }
