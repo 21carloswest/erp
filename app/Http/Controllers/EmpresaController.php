@@ -125,10 +125,14 @@ class EmpresaController extends Controller
 
             $contato->save();
 
-            foreach ($request->cnae as $value) {
-                $empresaCnae[] = EmpresaCnae::firstOrCreate(
-                    ['cnaeId' => $value, 'empresaId' => $empresaId]
-                );
+            $empresaCnae = [];
+
+            if ($request->cnae) {
+                foreach ($request->cnae as $value) {
+                    $empresaCnae[] = EmpresaCnae::firstOrCreate(
+                        ['cnaeId' => $value, 'empresaId' => $empresaId]
+                    );
+                }
             }
 
             return ['empresa' => $empresa, 'endereco' => $endereco, 'contato' => $contato, 'empresaCnae' => $empresaCnae];
