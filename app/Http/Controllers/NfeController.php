@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateNfeRequest;
 use App\Models\Configuracao;
 use App\Models\Nfe;
 use App\Models\NfeImposto;
+use App\Models\NfeInfo;
 use App\Traits\EmpresaIdTrait;
 use App\Traits\NfeTrait;
 use App\Traits\TimezoneTrait;
@@ -118,6 +119,10 @@ class NfeController extends Controller
                 'vCOFINS' => 0,
                 'vOutro' => 0,
                 'vNF' => 0,
+            ]);
+
+            $nfeInfo = NfeInfo::create([
+                'nfeId' => $nfe->id,
             ]);
 
             return ['nfe' => $nfe, 'impostos' => $nfeImpostos];

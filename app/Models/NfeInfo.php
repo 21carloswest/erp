@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class NfeInfo extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'nfeId',
+        'infoFisco',
+        'infoComplementares'
+    ];
 }
