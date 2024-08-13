@@ -6,8 +6,11 @@ use App\Http\Requests\StoreDestinatarioRequest;
 use App\Http\Requests\UpdateDestinatarioRequest;
 use App\Models\Destinatario;
 use App\Models\DestinatarioEndereco;
+use App\Models\Nfe;
 use App\Traits\EmpresaIdTrait;
 use Illuminate\Support\Facades\DB;
+
+use function PHPUnit\Framework\isEmpty;
 
 class DestinatarioController extends Controller
 {
@@ -144,11 +147,31 @@ class DestinatarioController extends Controller
         return $this->sendResponse($destinatario, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Destinatario $destinatario)
+    public function destroy(Destinatario $destinatario, $id)
     {
-        //
+        $destinatario = $destinatario->where('id', $id)
+            ->with('nfe:id,destinatarioId,numero,serie')
+            ->where('empresaId', $this->empresaId())
+            ->select('id')
+            ->first();
+
+        if (!isset($destinatario?->id)) {
+            return $this->sendError('Destinatário não encontrado.', 404);
+        }
+
+        if (!$destinatario->nfe->isEmpty()) {
+            return $this->sendError(
+                'Destinatário não pode ser apagado, pois existe uma nota vinculada. Número: ' . $destinatario->nfe[0]->numero . ' Série: ' . $destinatario->nfe[0]->serie, 
+                404
+            );
+        }
+
+        $delete = $destinatario->delete();
+
+        if ($delete) {
+            return $this->sendResponse('', 200, 'Destinatário excluído.');
+        } else { 
+            return $this->sendError('Houve um erro ao excluir.', 404);
+        }
     }
 }

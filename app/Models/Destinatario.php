@@ -28,4 +28,9 @@ class Destinatario extends Model
     {
         return $this->hasManyThrough(Municipio::class, DestinatarioEndereco::class, 'destinatarioId', 'id', 'id', 'id');
     }
+
+    public function nfe()
+    {
+        return $this->hasMany(Nfe::class, 'destinatarioId', 'id');
+    }
 }

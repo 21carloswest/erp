@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/destinatario/{id}', [DestinatarioController::class, 'show'])->name('DestinatarioShow');
     Route::post('/destinatario/store', [DestinatarioController::class, 'store'])->name('DestinatarioStore');
     Route::patch('/destinatario/update', [DestinatarioController::class, 'update'])->name('DestinatarioUpdate');
-    // Route::delete('/grupoImpostos/delete', [DestinatarioController::class, 'destroy'])->name('DestinatarioDelete');
+    Route::delete('/destinatario/delete/{id}', [DestinatarioController::class, 'destroy'])->name('DestinatarioDelete');
 
     Route::get('/nfe', [NfeController::class, 'index'])->name('NfeIndex');
     Route::get('/nfe/{id}', [NfeController::class, 'show'])->name('NfeShow');
