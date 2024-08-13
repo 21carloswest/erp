@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Nfe;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +14,9 @@ return new class extends Migration
     {
         Schema::create('nfe_infos', function (Blueprint $table) {
             $table->id();
-            $table->text('infoFisco');
-            $table->text('infoComplementares');
+            $table->foreignIdFor(Nfe::class, 'nfeId');
+            $table->text('infoFisco')->nullable();
+            $table->text('infoComplementares')->nullable();
             $table->timestamps();
         });
     }

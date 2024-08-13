@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/nfe/store', [NfeController::class, 'store'])->name('NfeStore');
     Route::patch('/nfe/update', [NfeController::class, 'update'])->name('NfeUpdate');
     Route::post('/nfe/enviar', [NfeController::class, 'enviar'])->name('NfeEnviar');
-    Route::delete('/nfe/delete', [NfeController::class, 'destroy'])->name('NfeDelete');
+    Route::delete('/nfe/delete/{id}', [NfeController::class, 'destroy'])->name('NfeDelete');
 
 });
 

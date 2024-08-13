@@ -13,7 +13,7 @@ return new class extends Migration {
     {
         Schema::create('nfe_impostos', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Nfe::class);
+            $table->foreignIdFor(Nfe::class, 'nfeId');
             $table->decimal('vBC', 13, 2);
             $table->decimal('vICMS', 13, 2);
             $table->decimal('vICMSDeson', 13, 2);

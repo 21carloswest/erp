@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryNfeRequest;
 use App\Http\Requests\StoreNfeRequest;
 use App\Http\Requests\UpdateNfeRequest;
 use App\Models\Configuracao;
 use App\Models\Nfe;
+use App\Models\NfeImposto;
 use App\Traits\EmpresaIdTrait;
 use App\Traits\NfeTrait;
 use App\Traits\TimezoneTrait;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class NfeController extends Controller
@@ -20,9 +23,26 @@ class NfeController extends Controller
 
     use NfeTrait;
 
-    public function index()
+    public function index(QueryNfeRequest $request)
     {
-        //
+        $nfes = Nfe::with([
+            'destinatario' => function ($query) {
+                $query->select('id', 'cnpjCpf', 'nomeRazao');
+            },
+            'nfeImposto' => function ($query) {
+                $query->select('vNF', 'nfeId');
+            },
+        ])
+            ->select('id', 'destinatarioId', 'numero', 'dtEmissao', 'statusId', 'ambiente')
+            ->where('ambiente', '=', $request->input('ambiente'))
+            ->where('nfe.empresaId', $this->empresaId())
+            ->paginate();
+
+        if ($nfes->isEmpty()) {
+            return $this->sendError('Nenhuma nota encontrada.', 404);
+        }
+
+        return $this->sendResponse($nfes, 200);
     }
 
     public function store(StoreNfeRequest $request)
@@ -66,7 +86,7 @@ class NfeController extends Controller
             ]);
 
             $chave = $this->getChave($nfe, 55);
-            
+
             $nfe->chave = $chave;
 
             $nfe->save();
@@ -77,15 +97,30 @@ class NfeController extends Controller
 
             $configuracao->save();
 
-            // $table->timestamp('dtAutorizacao')->nullable();
+            $nfeImpostos = NfeImposto::create([
+                'nfeId' => $nfe->id,
+                'vBC' => 0,
+                'vICMS' => 0,
+                'vICMSDeson' => 0,
+                'vFCP' => 0,
+                'vBCST' => 0,
+                'vST' => 0,
+                'vFCPST' => 0,
+                'vFCPSTRet' => 0,
+                'vProd' => 0,
+                'vFrete' => 0,
+                'vSeg' => 0,
+                'vDesc' => 0,
+                'vII' => 0,
+                'vIPI' => 0,
+                'vIPIDevol' => 0,
+                'vPIS' => 0,
+                'vCOFINS' => 0,
+                'vOutro' => 0,
+                'vNF' => 0,
+            ]);
 
-            // $table->string('chave')->nullable();
-            // $table->integer('serie');
-            // $table->integer('numero');
-            // $table->string('codigo', 8);
-
-
-            return ['nfe' => $nfe];
+            return ['nfe' => $nfe, 'impostos' => $nfeImpostos];
         });
 
         return $this->sendResponse($dados, 200);
@@ -94,28 +129,83 @@ class NfeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Nfe $nfe)
+    public function show(QueryNfeRequest $request, Nfe $nfe)
     {
-        //
+        $nfe = $nfe->with([
+            'destinatario' => function ($query) {
+                $query->select('id', 'cnpjCpf', 'nomeRazao');
+            },
+            'nfeImposto'
+        ])
+            ->where('id', '=', $request->id)
+            ->where('ambiente', '=', $request->input('ambiente'))
+            ->where('empresaId', $this->empresaId())
+            ->select(
+                'id',
+                'finalidadeId',
+                'destinoId',
+                'statusId',
+                'intermediadorId',
+                'destinatarioId',
+                'destinatarioEnderecoId',
+                'transportadoraId',
+                'naturezaOperacao',
+                'saida',
+                'ambiente',
+                'dtEmissao',
+                'dtSaida',
+                'dtAutorizacao',
+                'chave',
+                'serie',
+                'numero',
+            )
+            ->get();
+
+        if ($nfe->isEmpty()) {
+            return $this->sendError('Nota não encontrada.', 404);
+        }
+
+        return $this->sendResponse($nfe, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateNfeRequest $request, Nfe $nfe)
     {
-        //
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Nfe $nfe)
+    public function destroy(Nfe $nfe, $id)
     {
-        //
+        $nfe = $nfe->where('id', $id)
+            ->with('nfeImposto')
+            ->where('empresaId', $this->empresaId())
+            ->select('id', 'statusId')
+            ->get();
+
+        if ($nfe->isEmpty()) {
+            return $this->sendError('Nota não encontrada.', 404);
+        }
+
+        if ($nfe[0]->statusId !== Nfe::NaoEnviada) {
+            return $this->sendError('A nota não pode ser apagada.', 404);
+        }
+
+        $delete = DB::transaction(function () use ($nfe) {
+
+            $nfe[0]->nfeImposto->delete();
+
+            $delete = $nfe[0]->delete();
+            
+            return $delete;
+        });
+
+        if ($delete) {
+            return $this->sendResponse('', 200, 'Nota excluída.');
+        } else {
+            return $this->sendError('Houve um erro ao excluir.', 404);
+        }
     }
 
-    public function enviar ()
+    public function enviar()
     {
         //ipEnvio
     }

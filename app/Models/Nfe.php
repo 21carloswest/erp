@@ -34,4 +34,13 @@ class Nfe extends Model
         'chave',
     ];
 
+    public function destinatario()
+    {
+        return $this->belongsTo(Destinatario::class, 'destinatarioId', 'id');
+    }
+
+    public function nfeImposto()
+    {
+        return $this->hasOne(NfeImposto::class, 'nfeId', 'id');
+    }
 }
