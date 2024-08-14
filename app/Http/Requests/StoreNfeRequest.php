@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\EmpresaIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreNfeRequest extends FormRequest
 {
+    use EmpresaIdTrait;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -21,6 +24,7 @@ class StoreNfeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $empresaId = $this->empresaId();
         return [
             'nfe' => 'required|array',
             'nfe.empresaId' => 'prohibited',
@@ -38,11 +42,31 @@ class StoreNfeRequest extends FormRequest
             'nfe.dtSaida' => 'sometimes|nullable|date:Y-m-d H:i:s',
             'nfe.finalidadeId' => 'sometimes|integer|exists:finalidades,id',
             'nfe.destinoId' => 'sometimes|integer|exists:indicador_destinos,id',
+            'nfe.intermediadorId' => [
+                'sometimes',
+                'integer',
+                Rule::exists('intermediadors', 'id')
+                    ->where('empresaId', $empresaId),
+            ],
+            'nfe.destinatarioId' => [
+                'sometimes',
+                'integer',
+                Rule::exists('destinatarios', 'id')
+                    ->where('empresaId', $empresaId),
+            ],
+            'nfe.destinatarioEnderecoId' => [
+                'sometimes',
+                'integer',
+                Rule::exists('destinatario_enderecos', 'id')
+                    ->where('destinatarioId', $this->input('nfe.destinatarioId')),
+            ],
+            'nfe.transportadoraId' => [
+                'sometimes',
+                'integer',
+                Rule::exists('transportadoras', 'id')
+                    ->where('empresaId', $empresaId),
+            ],
 
-            'nfe.intermediadorId' => 'sometimes|integer|exists:intermediadors,id',
-            'nfe.destinatarioId' => 'sometimes|integer|exists:destinatarios,id',
-            'nfe.destinatarioEnderecoId' => 'sometimes|integer|exists:destinatario_enderecos,id',
-            'nfe.transportadoraId' => 'sometimes|integer|exists:transportadoras,id',
         ];
     }
 }
