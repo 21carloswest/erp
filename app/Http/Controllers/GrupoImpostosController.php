@@ -14,7 +14,7 @@ class GrupoImpostosController extends Controller
     use EmpresaIdTrait;
 
     public function index()
-    {   
+    {
         $grupoImpostos = GrupoImpostos::select('id', 'name', 'tipoId')
             ->where('empresaId', $this->empresaId())
             ->paginate();
@@ -123,11 +123,32 @@ class GrupoImpostosController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(GrupoImpostos $grupoImpostos)
+    public function destroy(GrupoImpostos $grupoImpostos, $id)
     {
-        //
+        $grupo = $grupoImpostos->where('id', $id)
+            ->with('produtos:id,grupoImpostosId')
+            ->where('empresaId', $this->empresaId())
+            ->select('id')
+            ->first();
+
+        if (empty($grupo)) {
+            return $this->sendError('Grupo de impostos não encontrado.', 404);
+        }
+
+        if (!$grupo->produtos->isEmpty()) {
+            return $this->sendError(
+                'O grupo de impostos não pode ser apagado, pois existe um produto vinculado.',
+                404
+            );
+        }
+
+        $delete = $grupo->delete();
+
+        if ($delete) {
+            return $this->sendResponse('', 200, 'Grupo de impostos excluído.');
+        } else {
+            return $this->sendError('Houve um erro ao excluir.', 404);
+        }
+        
     }
 }

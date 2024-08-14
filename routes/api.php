@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/grupoImpostos/{id}', [GrupoImpostosController::class, 'show'])->name('GrupoImpostosShow');
     Route::post('/grupoImpostos/store', [GrupoImpostosController::class, 'store'])->name('GrupoImpostosStore');
     Route::patch('/grupoImpostos/update', [GrupoImpostosController::class, 'update'])->name('GrupoImpostosUpdate');
-    // Route::delete('/grupoImpostos/delete', [GrupoImpostosController::class, 'destroy'])->name('GrupoImpostosDelete');
+    Route::delete('/grupoImpostos/delete/{id}', [GrupoImpostosController::class, 'destroy'])->name('GrupoImpostosDelete');
 
     Route::get('/impostos', [ImpostosController::class, 'index'])->name('ImpostosIndex');
     Route::get('/impostos/{id}', [ImpostosController::class, 'show'])->name('ImpostosShow');

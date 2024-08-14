@@ -14,4 +14,8 @@ class GrupoImpostos extends Model
     public function impostos(){
         return $this->hasMany(Impostos::class, 'grupoImpostosId', 'id');
     }
+
+    public function produtos(){
+        return $this->hasMany(Produto::class, 'grupoImpostosId', 'id');
+    }
 }
