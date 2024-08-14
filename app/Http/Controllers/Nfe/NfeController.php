@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Nfe;
 
-use App\Http\Requests\QueryNfeRequest;
-use App\Http\Requests\StoreNfeRequest;
-use App\Http\Requests\UpdateNfeRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\NotasFiscais\Nfe\QueryNfeRequest;
+use App\Http\Requests\NotasFiscais\Nfe\StoreNfeRequest;
+use App\Http\Requests\NotasFiscais\Nfe\UpdateNfeRequest;
 use App\Models\Configuracao;
 use App\Models\Nfe;
 use App\Models\NfeImposto;
@@ -13,7 +14,6 @@ use App\Traits\EmpresaIdTrait;
 use App\Traits\NfeTrait;
 use App\Traits\TimezoneTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class NfeController extends Controller
@@ -140,7 +140,30 @@ class NfeController extends Controller
             'destinatario' => function ($query) {
                 $query->select('id', 'cnpjCpf', 'nomeRazao');
             },
-            'nfeImposto'
+            'nfeImposto' => function ($query) {
+                $query->select(
+                    'nfeId',
+                    'vBC',
+                    'vICMS',
+                    'vICMSDeson',
+                    'vFCP',
+                    'vBCST',
+                    'vST',
+                    'vFCPST',
+                    'vFCPSTRet',
+                    'vProd',
+                    'vFrete',
+                    'vSeg',
+                    'vDesc',
+                    'vII',
+                    'vIPI',
+                    'vIPIDevol',
+                    'vPIS',
+                    'vCOFINS',
+                    'vOutro',
+                    'vNF'
+                );
+            },
         ])
             ->where('id', '=', $request->id)
             ->where('ambiente', '=', $request->input('ambiente'))
@@ -181,7 +204,7 @@ class NfeController extends Controller
     public function destroy(Nfe $nfe, $id)
     {
         $nfe = $nfe->where('id', $id)
-            ->with('nfeImposto')
+            ->with('nfeImposto', 'nfeInfo')
             ->where('empresaId', $this->empresaId())
             ->select('id', 'statusId')
             ->get();
@@ -198,8 +221,10 @@ class NfeController extends Controller
 
             $nfe[0]->nfeImposto->delete();
 
+            $nfe[0]->nfeInfo->delete();
+
             $delete = $nfe[0]->delete();
-            
+
             return $delete;
         });
 

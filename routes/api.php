@@ -7,7 +7,7 @@ use App\Http\Controllers\DestinatarioController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\GrupoImpostosController;
 use App\Http\Controllers\ImpostosController;
-use App\Http\Controllers\NfeController;
+use App\Http\Controllers\Nfe\NfeController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;

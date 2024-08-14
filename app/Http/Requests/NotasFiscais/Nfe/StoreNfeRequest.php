@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\NotasFiscais\Nfe;
 
 use App\Traits\EmpresaIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
