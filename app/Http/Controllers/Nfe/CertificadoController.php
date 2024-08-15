@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Nfe;
 
-use App\Http\Requests\StoreCertificadoRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\NotasFiscais\Certificado\StoreCertificadoRequest;
 use App\Models\Certificado;
 use App\Models\Empresa;
 use App\Traits\EmpresaIdTrait;

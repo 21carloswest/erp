@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\CertificadoController;
+use App\Http\Controllers\Nfe\CertificadoController;
 use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\DestinatarioController;
 use App\Http\Controllers\EmpresaController;
