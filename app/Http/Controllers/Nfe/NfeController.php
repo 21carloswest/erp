@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Nfe;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\NotasFiscais\Nfe\QueryNfeRequest;
 use App\Http\Requests\NotasFiscais\Nfe\StoreNfeRequest;
+use App\Http\Requests\NotasFiscais\Nfe\StoreProdutoNfeRequest;
 use App\Http\Requests\NotasFiscais\Nfe\UpdateNfeRequest;
 use App\Models\Configuracao;
 use App\Models\Nfe;
 use App\Models\NfeImposto;
 use App\Models\NfeInfo;
+use App\Models\NotasFiscais\ProdutoNfe;
 use App\Traits\EmpresaIdTrait;
 use App\Traits\NfeTrait;
 use App\Traits\TimezoneTrait;
@@ -233,6 +235,67 @@ class NfeController extends Controller
         } else {
             return $this->sendError('Houve um erro ao excluir.', 404);
         }
+    }
+
+    public function storeProdutoNfe(StoreProdutoNfeRequest $request, ProdutoNfe $produtoNfe)
+    {
+        $dados = DB::transaction(function () use ($request, $produtoNfe) {
+
+            $produtoNfe->fill($request->all());
+
+            $produtoNfe->save();
+
+            $nfeImposto = NfeImposto::getImpostos($produtoNfe->nfeId);
+
+            $nfeImposto->vBC += $produtoNfe->vBcIcms;
+            $nfeImposto->vICMS += $produtoNfe->vICMS;
+            // $nfeImposto->vICMSDeson += $produtoNfe->;
+            // $nfeImposto->vFCP += produtoNfe->;
+            $nfeImposto->vBCST += $produtoNfe->vBcIcmsSt;
+            $nfeImposto->vST += $produtoNfe->vICMSSt;
+            // $nfeImposto->vFCPST += $produtoNfe->;
+            // $nfeImposto->vFCPSTRet+= $produtoNfe->;
+            $nfeImposto->vProd += $produtoNfe->vProd;
+            $nfeImposto->vFrete += $produtoNfe->vFrete;
+            $nfeImposto->vSeg += $produtoNfe->vSeg;
+            $nfeImposto->vDesc += $produtoNfe->vDesc;
+            // $nfeImposto->vII += $produtoNfe->;
+            $nfeImposto->vIPI += $produtoNfe->vIpi;
+            // $nfeImposto->vIPIDevol += $produtoNfe->;
+            $nfeImposto->vPIS += $produtoNfe->vPis;
+            $nfeImposto->vCOFINS += $produtoNfe->vCofins;
+            $nfeImposto->vOutro += $produtoNfe->vOutro;
+            $nfeImposto->vNF = $nfeImposto->vProd
+                - $nfeImposto->vDesc
+                - $nfeImposto->vICMSDeson
+                + $nfeImposto->vST
+                + $nfeImposto->vFCPST
+                + $nfeImposto->vFrete
+                + $nfeImposto->vSeg
+                + $nfeImposto->vOutro
+                + $nfeImposto->vII
+                + $nfeImposto->vIPI
+                + $nfeImposto->vIPIDevol
+                + $nfeImposto->vServ;
+
+            $nfeImposto->save();
+
+            // (+) vProd (id:W07)
+            // (-) vDesc (id:W10)
+            // (-) vICMSDeson (id:W04a)
+            // (+) vST (id:W06)
+            // (+) vFCPST (id:W06a)
+            // (+) vFrete (id:W08)
+            // (+) vSeg (id:W09)
+            // (+) vOutro (id:W15)
+            // (+) vII (id:W11)
+            // (+) vIPI (id:W12)
+            // (+) vIPIDevol (id: W12a)
+            // (+) vServ (id:W18) (*3) (NT 2011/005)
+            return ['item' => $produtoNfe, 'nfeImpostos' => $nfeImposto];
+        });
+
+        return $this->sendResponse($dados, 200);
     }
 
     public function enviar()

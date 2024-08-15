@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/nfe/{id}', [NfeController::class, 'show'])->name('NfeShow');
     Route::post('/nfe/store', [NfeController::class, 'store'])->name('NfeStore');
     Route::patch('/nfe/update', [NfeController::class, 'update'])->name('NfeUpdate');
+    Route::post('/nfe/storeProduto', [NfeController::class, 'storeProdutoNfe'])->name('NfeStoreProduto');
     Route::post('/nfe/enviar', [NfeController::class, 'enviar'])->name('NfeEnviar');
     Route::delete('/nfe/delete/{id}', [NfeController::class, 'destroy'])->name('NfeDelete');
 

@@ -43,4 +43,9 @@ class Nfe extends Model
     {
         return $this->hasOne(NfeImposto::class, 'nfeId', 'id');
     }
+
+    public function nfeInfo()
+    {
+        return $this->hasOne(NfeInfo::class, 'nfeId', 'id');
+    }
 }
